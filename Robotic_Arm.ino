@@ -1,11 +1,14 @@
-/************************************************************* 
+/*************************************************************
 /* 6 DOF Robotic Arm inverse kinematics code for Arduino
 /* By: Dhrumil Parikh
-/* Date: 20-Oct-2017
+/* Date Created: 20-Oct-2017
 *************************************************************/
 
 #include <Servo.h>
 
+#define L1                      235.0
+#define L2                      130.0
+#define L3                      130
 
 #define BASE_SERVO				0
 #define SHOULDER_SERVO			1
@@ -16,16 +19,6 @@
 
 #define GRIPPER_CLOSED			100
 #define GRIPPER_OPENED			45
-#define TIME					5000
-
-//Dimensions in mm
-#define GRIPPER					130.00 
-#define BASE_HGT				60.00
-#define HUMERUS					146.05      //shoulder-to-elbow "bone" 5.75"
-#define ULNA					100.00        //elbow-to-wrist "bone" 7.375"
-
-float hum_sq = HUMERUS*HUMERUS;
-float uln_sq = ULNA*ULNA;
 
 /*Servos are numbered bottom to top (on arm)*/
 Servo servo[6];			  // Create 6 servos
@@ -52,17 +45,17 @@ void setup()
 void arm_home()
 {
 	servo[BASE_SERVO].write(90);
-	servo[SHOULDER_SERVO].write(90);
-	servo[ELBOW_SERVO].write(90);
-	servo[WRIST_SERVO].write(0);
+	servo[SHOULDER_SERVO].write(100);
+	servo[ELBOW_SERVO].write(100);
+	servo[WRIST_SERVO].write(85);
 	servo[WRIST_ROTATE_SERVO].write(90);
 	servo[GRIPPER_SERVO].write(GRIPPER_CLOSED);
+	delay(1000);
 }
 
+int poser = 0; // initial position of servero
 void ControlWithKeyBoard()
 {
-	int poser = 0; // initial position of servero
-
 	int val; // initial value of input
 
 	if (Serial.available()) // if serial value is available 
@@ -71,13 +64,13 @@ void ControlWithKeyBoard()
 		if (val == 'd') //if value input is equals to d
 		{
 			poser += 10; //than position of servo motor increases by 1 ( anti clockwise)
-			servo[BASE_SERVO].write(poser);// the servo will move according to position
+			servo[WRIST_SERVO].write(poser);// the servo will move according to position
 			delay(15);//delay for the servo to get to the position
 		}
 		if (val == 'a') //if value input is equals to a
 		{
 			poser -= 10; //than position of servo motor decreases by 1 (clockwise)
-			servo[BASE_SERVO].write(poser);// the servo will move according to position
+			servo[WRIST_SERVO].write(poser);// the servo will move according to position
 			delay(15);//delay for the servo to get to the position
 		}
 
@@ -94,61 +87,144 @@ void ControlWithKeyBoard()
 }
 
 
-
 void loop()
 {
-	//servo[WRIST_SERVO].writeMicroseconds(1000);
-	GoToPos(0, 0, 150, 90);
-	//delay(1000);
-	//servo[BASE_SERVO].write(180);
-	//delay(1000);
+	//arm_home();
+	Goto(0, 100, 200); // Step 1
+	delay(2000);
+	Goto(200, 100, 200);// Step 2
+	delay(2000);
+	Goto(200, 200, 200);// Step 3
+	Grab();
+	delay(2000);
+	Goto(200, 100, 200);// Step 4
+	delay(2000);
+	Goto(-50, 100, 200);// Step 5
+	delay(2000);
+	Goto(-100, 100, 200); //(0,0,0) Step 6
+	delay(2000);
+	Goto(-150, 100, 0);// Step 7
+	delay(2000);
+	Goto(-100, 100, 0);// Step 8
+	delay(2000);
+	Smooth(-100,100,0,  -100,100,150); //Step 9 - 11
+	delay(10000);
+	Smooth(-100, 100, 150, -100, 100, 0);
+	Goto(-150, 100, 0);// Step 12
+	delay(2000);
+	Goto(-50, 100, 200);// Step 13
+	delay(2000);
+	Goto(-100, 100, 200); //(0,0,0) Step 14
+	delay(2000);
+	Goto(-50, 100, 200); //Step 15
+	delay(2000);
+	Goto(200, 100, 250); //Step 16
+	delay(2000);
+	Goto(200, 100, 200); // Step 19
+	delay(2000);
+	Goto(0, 100, 200); // Step 20
+	delay(5000);
 }
 
-void GoToPos(float x, float y, float z, float grip_angle_d)
+//From -> To
+void Smooth(int x, int y, int z, int x2, int y2, int z2)
 {
-	float grip_angle_r = radians(grip_angle_d);
-	float bas_angle_r = atan2(x, y);
+	//x
+	if (x < x2) 
+	{
+		for (x; x < x2; x++)
+		{
+			Goto(x, y, z); delay(50);
+		}
+	}
+	else 
+	{
+		for (x; x > x2 ; x--)
+		{ 
+			Goto(x, y, z); delay(50);
+		}
+	}
+	//y
+	if (y < y2)
+	{
+		for (y; y < y2; y++)
+		{
+			Goto(x, y, z); delay(50);
+		}
+	}
+	else
+	{
+		for (y; y > y2; y--)
+		{
+			Goto(x, y, z); delay(50);
+		}
+	}
+	//z
+	if (z < z2)
+	{
+		for (z; z < z2; z++)
+		{
+			Goto(x, y, z); delay(50);
+		}
+	}
+	else
+	{
+		for (z; z > z2; z--)
+		{
+			Goto(x, y, z); delay(50);
+		}
+	}
 
-	y = sqrt((x * x) + (y * y)); 
-
-	float grip_off_z = (sin(grip_angle_r)) * GRIPPER;
-	float grip_off_y = (cos(grip_angle_r)) * GRIPPER;
-
-	float wrist_z = (z - grip_off_z) - BASE_HGT;
-	float wrist_y = y - grip_off_y;
-
-	/* Shoulder to wrist distance ( AKA sw ) */
-	float s_w = (wrist_z * wrist_z) + (wrist_y * wrist_y);
-	float s_w_sqrt = sqrt(s_w);
-
-	/* s_w angle to ground */
-	//float a1 = atan2( wrist_y, wrist_z );
-	float a1 = atan2(wrist_z, wrist_y);
-	/* s_w angle to humerus */
-	float a2 = acos(((hum_sq - uln_sq) + s_w) / (2 * HUMERUS * s_w_sqrt));
-	/* shoulder angle */
-	float shl_angle_r = a1 + a2;
-	float shl_angle_d = degrees(shl_angle_r);
-	/* elbow angle */
-	float elb_angle_r = acos((hum_sq + uln_sq - s_w) / (2 * HUMERUS * ULNA));
-	float elb_angle_d = degrees(elb_angle_r);
-	float elb_angle_dn = -(180.0 - elb_angle_d);
-	/* wrist angle */
-	float wri_angle_d = (grip_angle_d - elb_angle_dn) - shl_angle_d;
 
 
 
 
-	float bas_servopulse = 1500.0 - ((degrees(bas_angle_r)) * 11.11);
-	float shl_servopulse = 1500.0 + ((shl_angle_d - 90.0) * 6.6);
-	float elb_servopulse = 1500.0 - ((elb_angle_d - 90.0) * 6.6);
-	float wri_servopulse = 1500 + (wri_angle_d  * 11.1);
+
+	//for (int i = 0; i <= 150; i += 1)
+	//{
+	//	Goto(-100, 100, i);// Step 9
+	//	delay(50);
+	//}
+	//delay(10000);//Step 10
+	//for (int i = 150; i >= 0; i -= 1)
+	//{
+	//	Goto(-100, 100, i);// Step 11
+	//	delay(50);
+	//}
+}
+
+void Grab()
+{
+	servo[GRIPPER_SERVO].write(GRIPPER_OPENED);
+	delay(500);
+	servo[GRIPPER_SERVO].write(GRIPPER_CLOSED);
+}
 
 
-	servo[BASE_SERVO].writeMicroseconds(bas_servopulse);
-	servo[SHOULDER_SERVO].writeMicroseconds(shl_servopulse);
-	servo[ELBOW_SERVO].writeMicroseconds(elb_servopulse);
-	servo[WRIST_SERVO].writeMicroseconds(wri_servopulse);
+/*Two link Inverse kinametics*/
+void Goto(float x, float y, float z)
+{
+	float theta_1 = atan2(y, x);//Base Servo
 
-	Serial.println(elb_servopulse);
+	float r_squared = (x*x) + (y*y);
+
+
+	float theta_3 = -acos(((r_squared)+(z*z) - (L1*L1) - (L2*L2)) / (2 * L1*L2));
+
+	float k1 = L1 + L2*cos(theta_3);
+	float k2 = L2*sin(theta_3);
+
+	float theta_2 = atan2(z, sqrt(r_squared)) - atan2(k2, k1);
+
+	float t1 = degrees(theta_1);
+	float t2 = degrees(theta_2);
+	float t3 = degrees(theta_3);
+
+	if (t3 < 0) { t3 = abs(t3); }
+
+	servo[BASE_SERVO].write(t1);
+	servo[SHOULDER_SERVO].write(180-t2);
+	servo[ELBOW_SERVO].write(97);//Always constent
+	servo[WRIST_SERVO].write(190-t3);
+
 }
