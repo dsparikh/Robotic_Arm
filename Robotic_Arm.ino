@@ -89,54 +89,73 @@ void ControlWithKeyBoard()
 
 void loop()
 {
-	//arm_home();
-	Smooth(0, 100, 200,  200, 100, 200);// Step 1 -> Step 2
-	//Goto(0, 100, 200); // Step 1
-	//delay(2000);
-	//Goto(200, 100, 200);// Step 2
-	//delay(2000);
-	Smooth(200, 100, 200,  200, 200, 200);// Step 2 -> Step 3
-	//Goto(200, 200, 200);// Step 3
-	Grab();
-	Smooth(200, 200, 200,  200, 100, 200);// Step 3 -> Step 4
-	//delay(2000);
-	//Goto(200, 100, 200);// Step 4
-	//delay(2000);
-	Smooth(200, 100, 200,  -50, 100, 200);// Step 4 -> Step 5
-	//Goto(-50, 100, 200);// Step 5
-	//delay(2000);
-	Smooth(-50, 100, 200,  -100, 100, 200);// Step 5 -> Step 6
-	//Goto(-100, 100, 200); //(0,0,0) Step 6
-	//delay(2000);
-	Smooth(-100, 100, 200,  -150, 100, 0);// Step 6 -> Step 7
-	//Goto(-150, 100, 0);// Step 7
-	//delay(2000);
-	Smooth(-150, 100, 0,  -100, 100, 0);// Step 7 -> Step 8
-	//Goto(-100, 100, 0);// Step 8
-	//delay(2000);
-	Smooth(-100, 100, 0,  -100, 100,150); //Step 8 -> Step 9
-	delay(10000);
-	Smooth(-100, 100, 150,  -100, 100, 0);//Step 10 -> Step 11
-	
-	Smooth(-100, 100, 0,  -150, 100, 0);//Step 11 -> Step 12
-	//Goto(-150, 100, 0);// Step 12
-	//delay(2000);
-	Smooth(-150, 100, 0,  -50, 100, 200);//Step 12 -> Step 13
-	//Goto(-50, 100, 200);// Step 13
-	//delay(2000);
-	Smooth(-50, 100, 200,  -100, 100, 200);//Step 13 -> Step 14
-	//Goto(-100, 100, 200); //(0,0,0) Step 14
-	//delay(2000);
-	Smooth(-100, 100, 200,  -50, 100, 200);//Step 14 -> Step 15
-	//Goto(-50, 100, 200); //Step 15
-	//delay(2000);
-	Smooth(-50, 100, 200,  200, 100, 200);//Step 15 -> Step 19
-	//Goto(200, 100, 200); // Step 19
-	//delay(2000);
-	Smooth(200, 100, 200,  0, 100, 200);//Step 10 -> Step 20
-	
-	//Goto(0, 100, 200); // Step 20
-	//delay(5000);
+	////arm_home();
+	//Smooth(0, 100, 200,  200, 100, 200);// Step 1 -> Step 2
+	////Goto(0, 100, 200); // Step 1
+	////delay(2000);
+	////Goto(200, 100, 200);// Step 2
+	////delay(2000);
+	//Smooth(200, 100, 200,  200, 200, 200);// Step 2 -> Step 3
+	////Goto(200, 200, 200);// Step 3
+	//Grab();
+	//Smooth(200, 200, 200,  200, 100, 200);// Step 3 -> Step 4
+	////delay(2000);
+	////Goto(200, 100, 200);// Step 4
+	////delay(2000);
+	//Smooth(200, 100, 200,  -50, 100, 200);// Step 4 -> Step 5
+	////Goto(-50, 100, 200);// Step 5
+	////delay(2000);
+	//Smooth(-50, 100, 200,  -100, 100, 200);// Step 5 -> Step 6
+	////Goto(-100, 100, 200); //(0,0,0) Step 6
+	////delay(2000);
+	//Smooth(-100, 100, 200,  -150, 100, 0);// Step 6 -> Step 7
+	////Goto(-150, 100, 0);// Step 7
+	////delay(2000);
+	//Smooth(-150, 100, 0,  -100, 100, 0);// Step 7 -> Step 8
+	////Goto(-100, 100, 0);// Step 8
+	////delay(2000);
+	//Smooth(-100, 100, 0,  -100, 100,150); //Step 8 -> Step 9
+	//delay(10000);
+	//Smooth(-100, 100, 150,  -100, 100, 0);//Step 10 -> Step 11
+	//
+	//Smooth(-100, 100, 0,  -150, 100, 0);//Step 11 -> Step 12
+	////Goto(-150, 100, 0);// Step 12
+	////delay(2000);
+	//Smooth(-150, 100, 0,  -50, 100, 200);//Step 12 -> Step 13
+	////Goto(-50, 100, 200);// Step 13
+	////delay(2000);
+	//Smooth(-50, 100, 200,  -100, 100, 200);//Step 13 -> Step 14
+	////Goto(-100, 100, 200); //(0,0,0) Step 14
+	////delay(2000);
+	//Smooth(-100, 100, 200,  -50, 100, 200);//Step 14 -> Step 15
+	////Goto(-50, 100, 200); //Step 15
+	////delay(2000);
+	//Smooth(-50, 100, 200,  200, 100, 200);//Step 15 -> Step 19
+	////Goto(200, 100, 200); // Step 19
+	////delay(2000);
+	//Smooth(200, 100, 200,  0, 100, 200);//Step 10 -> Step 20
+	//
+	////Goto(0, 100, 200); // Step 20
+	////delay(5000);
+	//servo[GRIPPER_SERVO].write(95);
+    //delay(5000);
+    //servo[GRIPPER_SERVO].write(180);
+    //delay(5000);
+	Goto(0, 100, 62);// Step 8
+  servo[WRIST_ROTATE_SERVO].write(180);
+  servo[GRIPPER_SERVO].write(60);
+  delay(1000);
+  servo[GRIPPER_SERVO].write(85);
+  delay(1000);
+  servo[WRIST_ROTATE_SERVO].write(45);
+  delay(1000);
+  servo[GRIPPER_SERVO].write(60);
+  delay(1000);
+  servo[WRIST_ROTATE_SERVO].write(180);
+  delay(1000);
+
+
+
 }
 
 //From -> To
